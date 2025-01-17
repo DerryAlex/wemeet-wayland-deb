@@ -1,0 +1,15 @@
+Package: wemeet-wayland
+Version: 0.1.0+{DATE}
+Priority: optional
+Section: misc
+Maintainer: Buji Xu <derry.alex@foxmail.com>
+Architecture: {ARCH}
+Depends: libpipewire-0.3-0, libportal1, libxrandr2, libopencv-imgproc-dev | libopencv-imgproc410 | libopencv-imgproc406 | libopencv-imgproc406t64
+Homepage: https://github.com/xuwd1/wemeet-wayland-screenshare
+Description: XWayland Screencast for Wemeet
+ By design, X11 applications can't access window or screen contents
+ for wayland clients. This is fine in princple, but it breaks screen
+ sharing in wemeet.
+ .
+ This allows us to share windows to wemeet.
+

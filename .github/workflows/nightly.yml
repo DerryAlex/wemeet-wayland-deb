@@ -1,0 +1,110 @@
+name: nightly
+
+on:
+  schedule:
+    - cron: '0 2 * * *'
+
+  workflow_dispatch:
+
+
+jobs:
+  check-activity:
+    runs-on: ubuntu-latest
+
+    outputs:
+      is_active: ${{ steps.activity.outputs.is_active }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch upstream repo
+        run: |
+          git clone https://github.com/xuwd1/wemeet-wayland-screenshare.git
+      
+      - name: Check for repo activity
+        id: activity
+        run: |
+          is_active=false
+
+          # Skip activity check when manually triggered.
+          if [ "${{ github.event_name }}" == "repository_dispatch" ] || [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            is_active=true
+          fi
+
+          cd wemeet-wayland-screenshare
+          if [ "$(git rev-list --after="24 hours" ${{ github.sha }})" ]; then
+            is_active=true
+          fi
+          cd ..
+
+          if [ "$(git rev-list --after="24 hours" ${{ github.sha }})" ]; then
+            is_active=true
+          fi
+
+          echo "is_active=$is_active" >> $GITHUB_OUTPUT
+
+  build:
+    needs: check-activity
+    if: needs.check-activity.outputs.is_active == 'true'
+
+    # use older version for better compatibility
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install libopencv-imgproc-dev libpipewire-0.3-dev libportal-dev libxcomposite-dev libxdamage-dev libxrandr-dev
+
+      - name: Fetch upstream repo
+        run: |
+          git clone https://github.com/xuwd1/wemeet-wayland-screenshare.git
+
+      - name: Apply patches
+        run: |
+          patch wemeet-wayland-screenshare/hook_opencv.hpp patch/hook_opencv.patch
+      
+      - name: Build library
+        run: |
+          cd wemeet-wayland-screenshare
+          mkdir build
+          cd build
+          cmake ..
+          make
+          cd ..
+          cd ..
+      
+      - name: Install library
+        run: |
+          cp wemeet-wayland-screenshare/build/libhook.so pkg/usr/lib/wemeet/libxcast_wayland.so
+          strip pkg/usr/lib/wemeet/libxcast_wayland.so
+          rm pkg/usr/lib/wemeet/.gitkeep
+      
+      - name: Build package
+        run: |
+          ARCH=$(arch)
+          if [ ${ARCH} = "x86_64" ] ; then
+            ARCH="amd64"
+          fi
+          if [ ${ARCH} = "aarch64" ] ; then
+            ARCH="arm64"
+          fi
+          DATE=$(date +%Y%m%d)
+          sed -e "s/{DATE}/${DATE}/g" -i pkg/DEBIAN/control
+          sed -e "s/{ARCH}/${ARCH}/g" -i pkg/DEBIAN/control
+
+          fakeroot dpkg-deb -b pkg wemeet-wayland-${ARCH}.deb
+      
+      - uses: andelf/nightly-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: nightly
+          name: 'Nightly $$'
+          prerelease: true
+          body: |
+            This is a nightly release. **Use it with caution**.
+          files: |
+            ./wemeet-wayland-*.deb

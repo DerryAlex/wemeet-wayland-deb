@@ -1,0 +1,15 @@
+#!/bin/bash
+
+if [ $# -eq 0 ] ; then
+	return;
+fi
+
+case $1 in
+	remove | purge | upgrade | disappear )
+		if [ -e "/usr/share/applications/wemeetapp.desktop" ] ; then
+			desktop-file-edit --set-key=Exec --set-value="/opt/wemeet/wemeetapp.sh %u" /usr/share/applications/wemeetapp.desktop
+		fi
+		;;
+	failed-upgrade | abort-install | abort-upgrade )
+		;;
+esac

@@ -1,0 +1,15 @@
+#!/bin/bash
+
+if [ $# -eq 0 ] ; then
+	return;
+fi
+
+case $1 in
+	configure )
+		if [ -e "/usr/share/applications/wemeetapp.desktop" ] ; then
+			desktop-file-edit --set-key=Exec --set-value="wemeet-wayland %u" /usr/share/applications/wemeetapp.desktop
+		fi
+		;;
+	abort-upgrade | abort-remove | abort-deconfigure )
+		;;
+esac

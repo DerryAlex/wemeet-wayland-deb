@@ -1,0 +1,18 @@
+--- a/hook_opencv.hpp
++++ b/hook_opencv.hpp
+@@ -15,10 +15,14 @@ struct OpencvDLFCNSingleton{
+ private:
+   OpencvDLFCNSingleton(){
+     libopencv_core_handle = dlopen("libopencv_core.so", RTLD_LOCAL|RTLD_LAZY);
++    if (libopencv_core_handle == nullptr) libopencv_core_handle = dlopen("libopencv_core.so.4.10.0", RTLD_LOCAL|RTLD_LAZY); // debian sid at 2025-01-05
++    if (libopencv_core_handle == nullptr) libopencv_core_handle = dlopen("libopencv_core.so.4.6.0", RTLD_LOCAL|RTLD_LAZY); // debian stable at 2025-01-05
+     if(libopencv_core_handle == nullptr){
+       throw std::runtime_error("Failed to open library libopencv_core.so");
+     }
+     libopencv_imgproc_handle = dlopen("libopencv_imgproc.so", RTLD_LOCAL|RTLD_LAZY);
++    if (libopencv_imgproc_handle == nullptr) libopencv_imgproc_handle = dlopen("libopencv_imgproc.so.4.10.0", RTLD_LOCAL|RTLD_LAZY); // debian sid at 2025-01-05
++    if (libopencv_imgproc_handle == nullptr) libopencv_imgproc_handle = dlopen("libopencv_imgproc.so.4.6.0", RTLD_LOCAL|RTLD_LAZY); // debian stable at 2025-01-05
+     if(libopencv_imgproc_handle == nullptr){
+       throw std::runtime_error("Failed to open library libopencv_imgproc.so");
+     }
+

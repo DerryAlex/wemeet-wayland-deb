@@ -1,0 +1,16 @@
+#!/bin/bash
+
+if [ "$XDG_SESSION_TYPE" = "wayland" ] ; then
+  export XDG_SESSION_TYPE=x11
+  export EGL_PLATFORM=x11
+  export QT_QPA_PLATFORM=xcb
+  unset WAYLAND_DISPLAY
+  export LD_PRELOAD="/usr/lib/wemeet/libxcast_wayland.so"
+fi
+
+if [ -e "/opt/wemeet/wemeetapp.sh" ] ; then
+  exec /opt/wemeet/wemeetapp.sh "$@"
+else
+  echo "error: wemeet: not found"
+  exit 1
+fi
