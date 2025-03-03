@@ -68,6 +68,7 @@ jobs:
       - name: Apply patches
         run: |
           patch wemeet-wayland-screenshare/hook_opencv.hpp patch/hook_opencv.patch
+          patch wemeet-wayland-screenshare/payload.hpp patch/payload.patch
       
       - name: Build library
         run: |
