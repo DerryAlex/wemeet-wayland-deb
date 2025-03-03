@@ -5,6 +5,7 @@ Section: misc
 Maintainer: Buji Xu <derry.alex@foxmail.com>
 Architecture: {ARCH}
 Depends: libpipewire-0.3-0, libportal1, libxrandr2, libopencv-imgproc-dev | libopencv-imgproc410 | libopencv-imgproc406 | libopencv-imgproc406t64
+Recommends: wemeet, libxext-dev, libxdamage-dev
 Homepage: https://github.com/xuwd1/wemeet-wayland-screenshare
 Description: XWayland Screencast for Wemeet
  By design, X11 applications can't access window or screen contents
